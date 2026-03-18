@@ -1,0 +1,60 @@
+{
+  "name": "@ovelwe/z-state",
+  "version": "1.0.0",
+  "description": "z-state - простой стейт менеджер для React",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.cjs.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "prepublishOnly": "npm run build",
+    "test": "vitest",
+    "lint": "eslint src/"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-terser": "^1.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/react": "^19.2.14",
+    "react": "^18.2.0",
+    "rollup": "^4.0.0",
+    "rollup-plugin-dts": "^6.0.0",
+    "tslib": "^2.6.0",
+    "typescript": "^5.0.0",
+    "vitest": "^4.1.0"
+  },
+  "keywords": [
+    "react",
+    "state",
+    "state-management",
+    "store",
+    "hooks",
+    "z-manager",
+    "z"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ovelwe/z-manager.git"
+  },
+  "license": "MIT",
+  "author": "Danil Zobkov 2026",
+  "publishConfig": {
+    "access": "public"
+  }
+}

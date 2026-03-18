@@ -1,6 +1,6 @@
 {
   "name": "@ovelwe/z-state",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "z-state - простой стейт менеджер для React",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -50,7 +50,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ovelwe/z-manager.git"
+    "url": "git+https://github.com/ovelwe/z-state.git"
   },
   "license": "MIT",
   "author": "Danil Zobkov 2026",

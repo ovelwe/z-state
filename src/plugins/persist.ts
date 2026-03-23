@@ -1,51 +1,90 @@
 import type { Store, StoreOptions } from '../core/store';
 import { createStore } from '../core/store';
 
-interface PersistOptions {
+export interface PersistOptions<T extends object, P = T> {
     key: string;
     storage?: Storage;
-    serialize?: (state: unknown) => string;
-    deserialize?: (str: string) => unknown;
-    partialize?: (state: unknown) => unknown;
+    serialize?: (state: P) => string;
+    deserialize?: (str: string) => Partial<T>;
+    partialize?: (state: T) => P;
+}
+
+function getDefaultStorage(): Storage | undefined {
+    if (typeof window === 'undefined') {
+        return undefined;
+    }
+
+    return window.localStorage;
 }
 
 export function createPersistStore<T extends object>(
     initialState: T,
-    persistOptions: PersistOptions,
+    persistOptions: Omit<PersistOptions<T, T>, 'partialize'> & {
+        partialize?: undefined;
+    },
+    storeOptions?: StoreOptions<T>
+): Store<T>;
+
+export function createPersistStore<T extends object, P>(
+    initialState: T,
+    persistOptions: PersistOptions<T, P>,
+    storeOptions?: StoreOptions<T>
+): Store<T>;
+
+export function createPersistStore<T extends object, P = T>(
+    initialState: T,
+    persistOptions: PersistOptions<T, P>,
     storeOptions: StoreOptions<T> = {}
 ): Store<T> {
-    const {
-        key,
-        storage = localStorage,
-        serialize = JSON.stringify,
-        deserialize = JSON.parse,
-        partialize = (s: T) => s,
-    } = persistOptions;
+    const storage = persistOptions.storage ?? getDefaultStorage();
 
-    let restoredState = initialState;
-    try {
-        const saved = storage.getItem(key);
-        if (saved) {
-            const parsed = deserialize(saved);
-            restoredState = { ...initialState, ...parsed };
+    const serialize =
+        persistOptions.serialize ??
+        (JSON.stringify as unknown as (state: P) => string);
+
+    const deserialize =
+        persistOptions.deserialize ??
+        (JSON.parse as unknown as (str: string) => Partial<T>);
+
+    const partialize =
+        persistOptions.partialize ??
+        (((state: T) => state as unknown as P) as (state: T) => P);
+
+    let restoredState: T = initialState;
+
+    if (storage) {
+        try {
+            const saved = storage.getItem(persistOptions.key);
+
+            if (saved) {
+                const parsed = deserialize(saved);
+                restoredState = { ...initialState, ...parsed };
+            }
+        } catch (error) {
+            console.warn(
+                `[z-state persist] Failed to restore "${persistOptions.key}":`,
+                error
+            );
         }
-    } catch (e) {
-        console.warn(`[LiteState Persist] Не удалось восстановить "${key}":`, e);
     }
 
-    const store = createStore(restoredState, {
+    return createStore(restoredState, {
         ...storeOptions,
         onUpdate: (newState, prevState) => {
-            try {
-                const toSave = partialize(newState);
-                storage.setItem(key, serialize(toSave));
-            } catch (e) {
-                console.warn(`[LiteState Persist] Не удалось сохранить "${key}":`, e);
+            if (storage) {
+                try {
+                    const partialState = partialize(newState);
+                    const serialized = serialize(partialState);
+                    storage.setItem(persistOptions.key, serialized);
+                } catch (error) {
+                    console.warn(
+                        `[z-state persist] Failed to save "${persistOptions.key}":`,
+                        error
+                    );
+                }
             }
 
             storeOptions.onUpdate?.(newState, prevState);
         },
     });
-
-    return store;
 }

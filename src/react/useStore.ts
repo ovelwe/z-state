@@ -1,5 +1,6 @@
-import { useSyncExternalStore, useCallback, useRef } from 'react';
-import type {Store} from '../core/store';
+import { useCallback, useRef } from 'react';
+import { useSyncExternalStore } from './useSyncExternalStoreShim';
+import type { Store } from '../core/store';
 
 export function useStore<T extends object>(store: Store<T>): T {
     const state = useSyncExternalStore(

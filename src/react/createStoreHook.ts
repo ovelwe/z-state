@@ -1,4 +1,5 @@
-import { useSyncExternalStore, useCallback, useRef } from 'react';
+import { useCallback, useRef } from 'react';
+import { useSyncExternalStore } from './useSyncExternalStoreShim';
 import { createStore, shallowEqual } from '../core/store';
 import type { Store, StoreOptions } from '../core/store';
 
@@ -13,7 +14,6 @@ export function create<T extends object>(
     stateCreator: StateCreator<T>,
     options: StoreOptions<T> = {}
 ) {
-    // eslint-disable-next-line prefer-const
     let store: Store<T>;
 
     const initialState = stateCreator(
@@ -26,7 +26,6 @@ export function create<T extends object>(
     function useHook(): T;
     function useHook<R>(selector: (state: T) => R): R;
     function useHook<R>(selector?: (state: T) => R): T | R {
-
         const prevResultRef = useRef<T | R | null>(null);
 
         const getSnapshot = useCallback((): T | R => {
